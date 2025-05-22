@@ -1,12 +1,21 @@
 <?php
 require_once 'core/dbConfig.php';
 
-$docId = $_GET['id'];
+if (!isset($_SESSION['user_id'])) {
+    die("Access denied.");
+}
+
+$docId = $_GET['id'] ?? null;
 $userId = $_SESSION['user_id'];
+
+if (!$docId) {
+    die("Document ID is missing.");
+}
 
 // Check if admin has access or ownership
 $accessCheck = $pdo->prepare("
-    SELECT d.*, u.username AS owner FROM documents d
+    SELECT d.*, u.name AS owner_name 
+    FROM documents d
     JOIN users u ON d.owner_id = u.id
     WHERE d.id = ?
 ");
@@ -33,10 +42,10 @@ if ($access->rowCount()) {
 </head>
 <body>
     <h1><?= htmlspecialchars($doc['title']) ?></h1>
-    <p>Owner: <?= htmlspecialchars($doc['owner']) ?></p>
+    <p>Owner: <?= htmlspecialchars($doc['owner_name']) ?></p>
 
     <?php if ($canEdit): ?>
-        <form method="POST" action="core/handleForms.php">
+        <form method="POST" action="../core/handleForms.php">
             <textarea name="content" rows="10" cols="80"><?= htmlspecialchars($doc['content']) ?></textarea>
             <input type="hidden" name="action" value="admin_save_doc">
             <input type="hidden" name="doc_id" value="<?= $docId ?>">
@@ -46,7 +55,7 @@ if ($access->rowCount()) {
         <div style="border:1px solid #ccc; padding:10px;">
             <?= nl2br(htmlspecialchars($doc['content'])) ?>
         </div>
-        <p><i>(You don't have permission to edit this document)</i></p>
+        <p><i>(You do not have permission to edit this document)</i></p>
     <?php endif; ?>
 </body>
 </html>

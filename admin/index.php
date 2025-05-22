@@ -10,7 +10,7 @@ $users = $pdo->query("SELECT * FROM users WHERE role = 'user'")->fetchAll();
 
 // Get all documents
 $documents = $pdo->query("
-    SELECT d.*, u.username AS owner FROM documents d
+    SELECT d.*, u.name AS owner FROM documents d
     JOIN users u ON d.owner_id = u.id
 ")->fetchAll();
 ?>
@@ -33,10 +33,10 @@ $documents = $pdo->query("
 
     <h2>User Accounts</h2>
     <table border="1">
-        <tr><th>Username</th><th>Suspended?</th></tr>
+        <tr><th>Name</th><th>Suspended?</th></tr>
         <?php foreach ($users as $user): ?>
             <tr>
-                <td><?= htmlspecialchars($user['username']) ?></td>
+                <td><?= htmlspecialchars($user['name']) ?></td>
                 <td>
                     <input type="checkbox" <?= $user['is_suspended'] ? 'checked' : '' ?>
                            onchange="toggleSuspend(<?= $user['id'] ?>, this)">
